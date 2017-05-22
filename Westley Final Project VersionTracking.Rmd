@@ -1,0 +1,77 @@
+---
+title: "Sentiment Analysis of Tweets about Social Issues"
+author: "Dana Westley"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#practicing tidy text and some simple sentiment analysis using only one days worth of data 
+#source: https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html
+
+library(purrr)
+library(dplyr)
+library(tidytext)
+library(readr)
+
+
+data = read_csv("~/Desktop/ThesisResearch/DATA/1Race/RaceAmerica2015-01-19.csv")
+
+tidy_data <- data %>%
+  unnest_tokens(word, text)
+
+data("stop_words")
+nostopwords_data <- tidy_data %>%
+  anti_join(stop_words)
+
+nostopwords_data %>% 
+  count(word, sort = TRUE)
+
+library(wordcloud)
+
+nostopwords_data %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+
+
+#practicing sentiment to see most common positive and negative words 
+library(tidyr)
+bing <- get_sentiments("bing")
+
+sentiment_tweets <- tidy_data %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+library(ggplot2)
+
+sentiment_tweets %>%
+  filter(n > 20) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab("Count") + 
+  labs(title = "Most Common Positive and Negative Words in Tweets About Race from 1/19/17")
+```
+
+## Final Visualization(s)
+
+```{r pressure, echo=FALSE}
+nostopwords_data %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+
+
+sentiment_tweets %>%
+  filter(n > 20) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab("Count") + 
+  labs(title = "Most Common Positive and Negative Words in Tweets About Race from 1/19/17")
+```
