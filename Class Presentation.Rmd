@@ -1,0 +1,274 @@
+---
+title: "Sentiment Analysis of Tweets about Social Issues"
+author: "Dana Westley"
+date: "Due Sunday June 4, 2017"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#practicing tidy text and some simple sentiment analysis using only one days worth of data 
+#source: https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html
+
+library(purrr)
+library(dplyr)
+library(tidytext)
+library(readr)
+
+
+data = read_csv("~/Desktop/ThesisResearch/DATA/1Race/RaceAmerica2015-01-19.csv")
+
+tidy_data <- data %>%
+  unnest_tokens(word, text)
+
+data("stop_words")
+nostopwords_data <- tidy_data %>%
+  anti_join(stop_words)
+
+nostopwords_data %>% 
+  count(word, sort = TRUE)
+
+library(wordcloud)
+
+nostopwords_data %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+
+
+#practicing sentiment to see most common positive and negative words 
+library(tidyr)
+bing <- get_sentiments("bing")
+
+sentiment_tweets <- tidy_data %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+library(ggplot2)
+
+sentiment_tweets %>%
+  filter(n > 20) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab("Count") + 
+  labs(title = "Most Common Positive and Negative Words in Tweets About Race from 1/19/17")
+
+
+#trying with data of a month of tweets
+race_month <- read.csv("~/Desktop/ThesisResearch/MasterDatafiles/RaceMaster.csv")
+
+race_month$text <- as.character(race_month$text)
+
+tidy_month <- race_month %>%
+  unnest_tokens(word, text)
+
+data("stop_words")
+nostopwords_monthdata <- tidy_month %>%
+  anti_join(stop_words)
+
+###MAYBE use tm to add custom stops? tidy text seems hard
+
+nostopwords_monthdata %>% 
+  count(word, sort = TRUE) %>%
+  ungroup()
+
+nostopwords_monthdata %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+
+sentiment_monthtweets <- tidy_month %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+library(RColorBrewer)
+race_all <- nostopwords_monthdata %>%
+  count(word, sort = TRUE) %>%
+  filter(n < 10000) %>%
+  head(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Terms in Tweets \n About Race in Trump's First Month", x = "", y = "Mentions") + 
+  theme_minimal() +
+  scale_fill_manual(values = c("grey35", "grey70")) + 
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
+        legend.title = element_blank(), 
+        legend.text = element_text(family = "Times", size = 12), 
+        plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15)) + 
+  coord_flip()
+
+race_posneg <- sentiment_monthtweets %>%
+  filter(n > 750, n < 7500) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Positive and Negative Words in Tweets \n About Race in Trump's First Month", x = "", y = "Mentions") + 
+  theme_minimal() +
+  scale_fill_manual(values = c("grey35", "grey70")) + 
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
+        legend.title = element_blank(), 
+        legend.text = element_text(family = "Times", size = 12), 
+        plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15)) + 
+  coord_flip()
+  
+
+#visual using change over time?
+#sentiment_monthtweets_time <- tidy_month %>%
+  #inner_join(bing) %>%
+  #count(word, index = created, sentiment, sort = TRUE) %>%
+  #spread(sentiment, n, fill = 0) %>%
+  #mutate(sentiment = positive - negative)
+
+#need to create a daily sentiment average, otherwise too many time points to plot. looks bad. 
+#ggplot(sentiment_monthtweets_time, aes(index, sentiment)) +
+# geom_smooth(stat = "identity", show.legend = FALSE)
+
+
+#GENDER
+gender_month <- read.csv("~/Desktop/ThesisResearch/MasterDatafiles/GenderMaster.csv")
+
+gender_month$text <- as.character(gender_month$text)
+
+tidy_gendermonth <- gender_month %>%
+  unnest_tokens(word, text)
+
+data("stop_words")
+nostopwords_gendermonthdata <- tidy_gendermonth %>%
+  anti_join(stop_words)
+
+nostopwords_gendermonthdata %>% 
+  count(word, sort = TRUE)
+
+sentiment_gendermonthtweets <- tidy_gendermonth %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+gender_all <- nostopwords_gendermonthdata %>%
+  count(word, sort = TRUE) %>%
+  filter(n < 10000) %>%
+  head(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Terms in Tweets \n About Gender in Trump's First Month", x = "", y = "Mentions") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
+        legend.title = element_blank(), 
+        legend.text = element_text(family = "Times", size = 12), 
+        plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15)) + 
+  coord_flip()
+
+gender_posneg <- sentiment_gendermonthtweets %>%
+  filter(n > 750, n < 10000) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Positive and Negative Words in Tweets \n About Gender in Trump's First Month", x = "", y = "Mentions") + 
+  theme_minimal() +
+  scale_fill_manual(values = c("grey35", "grey70")) + 
+  coord_flip() +
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
+        legend.title = element_blank(), 
+        legend.text = element_text(family = "Times", size = 12), 
+        plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15))
+
+
+#RELIGION
+religion_month <- read.csv("~/Desktop/ThesisResearch/MasterDatafiles/ReligionMaster.csv")
+
+religion_month$text <- as.character(religion_month$text)
+
+tidy_religionmonth <- religion_month %>%
+  unnest_tokens(word, text)
+
+data("stop_words")
+nostopwords_religionmonthdata <- tidy_religionmonth %>%
+  anti_join(stop_words)
+
+nostopwords_religionmonthdata %>% 
+  count(word, sort = TRUE)
+
+sentiment_religionmonthtweets <- tidy_religionmonth %>%
+  inner_join(bing) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+religion_all <- nostopwords_religionmonthdata %>%
+  count(word, sort = TRUE) %>%
+  filter(n < 15000) %>%
+  head(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Terms in Tweets \n About Religion in Trump's First Month", x = "", y = "Mentions") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
+        legend.title = element_blank(), 
+        legend.text = element_text(family = "Times", size = 12), 
+        plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15)) + 
+  coord_flip()
+
+religion_posneg <- sentiment_religionmonthtweets %>%
+  filter(n > 750, n < 6000) %>%
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Positive and Negative Words in Tweets \n About Religion in Trump's First Month", x = "", y = "Mentions") + 
+  theme_minimal() +
+  scale_fill_manual(values = c("grey35", "grey70")) + 
+  coord_flip() +
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
+        legend.title = element_blank(), 
+        legend.text = element_text(family = "Times", size = 12), 
+        plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15))
+```
+
+#Most Common Terms in Tweets About: 
+##Race
+```{r, echo=FALSE}
+print(race_all)
+```
+##Gender
+```{r, echo=FALSE}
+print(gender_all)
+```
+##Religion
+```{r, echo=FALSE}
+print(religion_all)
+```
+
+
+#Sentiment Analysis for Positive and Negative Words in Tweets About:
+##Race
+```{r, echo=FALSE}
+print(race_posneg)
+```
+##Gender
+```{r, echo=FALSE}
+print(gender_posneg)
+```
+##Religion
+```{r, echo=FALSE}
+print(religion_posneg)
+```
