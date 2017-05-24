@@ -94,21 +94,22 @@ sentiment_monthtweets %>%
   geom_bar(stat = "identity") +
   labs(title = "Most Common Positive and Negative Words in Tweets \n About Race in Trump's First Month", x = "", y = "Mentions") + 
   theme_minimal() +
-  scale_fill_manual(values = c("grey70", "grey35")) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1.0, size = 12, family = "Times"), 
+  scale_fill_manual(values = c("grey35", "grey70")) + 
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
         legend.title = element_blank(), 
         legend.text = element_text(family = "Times", size = 12), 
         plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
-        axis.text.y = element_text(family = "Times", size = 13), 
-        axis.title.y = element_text(family = "Times", size = 15))
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15)) + 
+  coord_flip()
   
 
 #visual using change over time?
-sentiment_monthtweets_time <- tidy_month %>%
-  inner_join(bing) %>%
-  count(word, index = created, sentiment, sort = TRUE) %>%
-  spread(sentiment, n, fill = 0) %>%
-  mutate(sentiment = positive - negative)
+#sentiment_monthtweets_time <- tidy_month %>%
+  #inner_join(bing) %>%
+  #count(word, index = created, sentiment, sort = TRUE) %>%
+  #spread(sentiment, n, fill = 0) %>%
+  #mutate(sentiment = positive - negative)
 
 #need to create a daily sentiment average, otherwise too many time points to plot. looks bad. 
 #ggplot(sentiment_monthtweets_time, aes(index, sentiment)) +
@@ -120,6 +121,8 @@ sentiment_monthtweets_time <- tidy_month %>%
 ## Final Visualization(s)
 
 ```{r, echo=FALSE}
+
+
 sentiment_monthtweets %>%
   filter(n > 750, n < 7500) %>%
   mutate(n = ifelse(sentiment == "negative", -n, n)) %>%
@@ -128,12 +131,13 @@ sentiment_monthtweets %>%
   geom_bar(stat = "identity") +
   labs(title = "Most Common Positive and Negative Words in Tweets \n About Race in Trump's First Month", x = "", y = "Mentions") + 
   theme_minimal() +
-  scale_fill_manual(values = c("grey70", "grey35")) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1.0, size = 12, family = "Times"), 
+  scale_fill_manual(values = c("grey35", "grey70")) + 
+  theme(axis.text.x = element_text(hjust = 1.0, size = 13, family = "Times"), 
         legend.title = element_blank(), 
         legend.text = element_text(family = "Times", size = 12), 
         plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
-        axis.text.y = element_text(family = "Times", size = 13), 
-        axis.title.y = element_text(family = "Times", size = 15))
+        axis.text.y = element_text(family = "Times", size = 12), 
+        axis.title.x = element_text(family = "Times", size = 15)) + 
+  coord_flip()
 
 ```
