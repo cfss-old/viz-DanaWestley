@@ -42,4 +42,4 @@ Religion
 Sentiment of Race Tweets Over Time
 ==================================
 
-![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-1.png)![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-2.png)![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-3.png)

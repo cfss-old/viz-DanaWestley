@@ -339,11 +339,89 @@ dailymeansplot <- ggplot(dailymeans_long, aes(created, value, color = variable))
         axis.text.x = element_text(family = "Times")) +
   scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
 
+#Gender over time
+sent_gendertime <- tidy_gendermonth %>%
+  inner_join(bing) %>%
+  ungroup()
+
+
+sent_gendertime$positive[sent_gendertime$sentiment == "positive"] = 1
+sent_gendertime$positive[sent_gendertime$sentiment == "negative"] = 0
+sent_gendertime$positive <- factor(sent_gendertime$positive, levels = c(0,1))
+
+sent_gendertime$negative[sent_gendertime$sentiment == "negative"] = 1
+sent_gendertime$negative[sent_gendertime$sentiment == "positive"] = 0
+sent_gendertime$negative <- factor(sent_gendertime$negative, levels = c(0,1))
+
+
+sent_gendertime$created <- as.Date(sent_gendertime$created, "%m/%d/%y")
+
+dailymeans_gen <- aggregate(cbind("positive.mean" = positive,
+                "negative.mean" = negative) ~ created,
+          data = sent_gendertime,
+          FUN = mean)
+
+dailymeans_gen_long <- melt(dailymeans_gen, id = "created")
+
+dailymeansplot_gen <- ggplot(dailymeans_gen_long, aes(created, value, color = variable)) + 
+  geom_line() +
+  theme_minimal() + 
+  labs(title = "Daily Average of Positive & Negative Words \n for Tweets about Gender", 
+       x = "Date", y = "Average # of Words") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times")) +
+  scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
+
+#Religion over time
+sent_religiontime <- tidy_religionmonth %>%
+  inner_join(bing) %>%
+  ungroup()
+
+
+sent_religiontime$positive[sent_religiontime$sentiment == "positive"] = 1
+sent_religiontime$positive[sent_religiontime$sentiment == "negative"] = 0
+sent_religiontime$positive <- factor(sent_religiontime$positive, levels = c(0,1))
+
+sent_religiontime$negative[sent_religiontime$sentiment == "negative"] = 1
+sent_religiontime$negative[sent_religiontime$sentiment == "positive"] = 0
+sent_religiontime$negative <- factor(sent_religiontime$negative, levels = c(0,1))
+
+
+sent_religiontime$created <- as.Date(sent_religiontime$created, "%m/%d/%y")
+
+dailymeans_rel <- aggregate(cbind("positive.mean" = positive,
+                "negative.mean" = negative) ~ created,
+          data = sent_religiontime,
+          FUN = mean)
+
+dailymeans_rel_long <- melt(dailymeans_rel, id = "created")
+
+dailymeansplot_rel <- ggplot(dailymeans_rel_long, aes(created, value, color = variable)) + 
+  geom_line() +
+  theme_minimal() + 
+  labs(title = "Daily Average of Positive & Negative Words \n for Tweets about Religion", 
+       x = "Date", y = "Average # of Words") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times")) +
+  scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
+
 ```
 
 
 #Sentiment of Race Tweets Over Time
 ``` {r, echo = FALSE}
 print(dailymeansplot)
+
+print(dailymeansplot_gen)
+
+print(dailymeansplot_rel)
 
 ```
