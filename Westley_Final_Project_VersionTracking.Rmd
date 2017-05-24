@@ -244,31 +244,17 @@ religion_posneg <- sentiment_religionmonthtweets %>%
         axis.title.x = element_text(family = "Times", size = 15))
 ```
 
-#Most Common Terms in Tweets About: 
-##Race
+## Final Visualization(s)
+
 ```{r, echo=FALSE}
+
 print(race_all)
-```
-##Gender
-```{r, echo=FALSE}
-print(gender_all)
-```
-##Religion
-```{r, echo=FALSE}
-print(religion_all)
-```
-
-
-#Sentiment Analysis for Positive and Negative Words in Tweets About:
-##Race
-```{r, echo=FALSE}
 print(race_posneg)
-```
-##Gender
-```{r, echo=FALSE}
+
+print(gender_all)
 print(gender_posneg)
-```
-##Religion
-```{r, echo=FALSE}
+
+print(religion_all)
 print(religion_posneg)
+
 ```
