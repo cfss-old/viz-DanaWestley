@@ -292,7 +292,7 @@ print(religion_posneg)
 race_month$created <- as.Date(race_month$created, "%m/%d/%y")
 
 race_month$text <- as.character(race_month$text)
-
+library(reshape2)
 library(tidytext)
 data("stop_words")
 clean_racedata <- race_month %>%
@@ -323,6 +323,13 @@ dailymeans <- aggregate(cbind("positive.mean" = positive,
           data = sent_racetime,
           FUN = mean)
 
+dailysums_race <- aggregate(cbind("positive.mean" = positive,
+                "negative.mean" = negative) ~ created,
+          data = sent_racetime,
+          FUN = sum)
+
+dailysums_race_long <- melt(dailysums_race, id = "created")
+
 library(reshape2)
 dailymeans_long <- melt(dailymeans, id = "created")
 
@@ -331,6 +338,19 @@ dailymeansplot <- ggplot(dailymeans_long, aes(created, value, color = variable))
   theme_minimal() + 
   labs(title = "Daily Average of Positive & Negative Words \n for Tweets about Race", 
        x = "Date", y = "Average # of Words") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times")) +
+  scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
+
+dailysumssplot_race <- ggplot(dailysums_race_long, aes(created, value, color = variable)) + 
+  geom_line() +
+  theme_minimal() + 
+  labs(title = "Daily Sum of Positive & Negative Words \n for Tweets about Race", 
+       x = "Date", y = "Total # of Words") + 
   guides(color=guide_legend("Sentiment")) + 
   theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
         axis.title = element_text(family = "Times", size = 13), 
@@ -413,6 +433,83 @@ dailymeansplot_rel <- ggplot(dailymeans_rel_long, aes(created, value, color = va
         axis.text.x = element_text(family = "Times")) +
   scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
 
+
+
+dailysums_gen <- aggregate(cbind("positive.mean" = positive,
+                "negative.mean" = negative) ~ created,
+          data = sent_gendertime,
+          FUN = sum)
+
+dailysums_gen_long <- melt(dailysums_gen, id = "created")
+
+dailysumssplot_gen <- ggplot(dailysums_gen_long, aes(created, value, color = variable)) + 
+  geom_line() +
+  theme_minimal() + 
+  labs(title = "Daily Sum of Positive & Negative Words \n for Tweets about Gender", 
+       x = "Date", y = "Total # of Words") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times")) +
+  scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
+
+
+dailysums_rel <- aggregate(cbind("positive.mean" = positive,
+                "negative.mean" = negative) ~ created,
+          data = sent_religiontime,
+          FUN = sum)
+
+dailysums_rel_long <- melt(dailysums_rel, id = "created")
+
+dailysumsplot_rel <- ggplot(dailysums_rel_long, aes(created, value, color = variable)) + 
+  geom_line() +
+  theme_minimal() + 
+  labs(title = "Daily Sum of Positive & Negative Words \n for Tweets about Religion", 
+       x = "Date", y = "Total # of Words") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times")) +
+  scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
+
+
+#NET POSITIVITY
+dailysums_rel$netPositve <- (dailysums_rel$positive.mean - dailysums_rel$negative.mean)
+
+dailysums_gen$netPositve <- (dailysums_gen$positive.mean - dailysums_gen$negative.mean)
+
+dailysums_race$netPositve <- (dailysums_race$positive.mean - dailysums_race$negative.mean)
+
+#MERGE NET POSITIVITY AND TRACK SOURCE DF
+dailysums_rel$Issue <- "religion"
+
+dailysums_gen$Issue <- "gender"
+
+dailysums_race$Issue <- "race"
+
+
+
+#BIND
+netdf <- rbind(dailysums_gen, dailysums_race, dailysums_rel)
+
+
+#plot net
+netSentplot <- ggplot(netdf, aes(created, netPositve, color = Issue)) + 
+  geom_smooth() +
+  theme_minimal() + 
+  labs(title = "Net Daily Positivity Score for Tweets by Issue", 
+       x = "Date", y = "Net Positivity") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times"))
+
 ```
 
 
@@ -423,5 +520,23 @@ print(dailymeansplot)
 print(dailymeansplot_gen)
 
 print(dailymeansplot_rel)
+
+```
+
+#Using Sums instead of Means
+``` {r, echo = FALSE}
+
+print(dailysumssplot_race)
+
+print(dailysumssplot_gen)
+
+print(dailysumsplot_rel)
+
+```
+
+#Net Positivity
+
+``` {r, echo = FALSE}
+print(netSentplot)
 
 ```

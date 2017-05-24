@@ -43,3 +43,15 @@ Sentiment of Race Tweets Over Time
 ==================================
 
 ![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-1.png)![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-2.png)![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-8-3.png)
+
+Using Sums instead of Means
+===========================
+
+![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-9-1.png)![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-9-2.png)![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-9-3.png)
+
+Net Positivity
+==============
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+![](Class_Presentation_files/figure-markdown_github/unnamed-chunk-10-1.png)
