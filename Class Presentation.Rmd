@@ -10,6 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #practicing tidy text and some simple sentiment analysis using only one days worth of data 
 #source: https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html
+#more sources: http://juliasilge.com/blog/Life-Changing-Magic/
+#more: https://stackoverflow.com/questions/43623400/how-to-add-custom-stop-word-list-to-stopwordsremover
+#more: http://varianceexplained.org/r/trump-tweets/
+
 
 library(purrr)
 library(dplyr)
@@ -249,10 +253,12 @@ religion_posneg <- sentiment_religionmonthtweets %>%
 ```{r, echo=FALSE}
 print(race_all)
 ```
+
 ##Gender
 ```{r, echo=FALSE}
 print(gender_all)
 ```
+
 ##Religion
 ```{r, echo=FALSE}
 print(religion_all)
@@ -264,11 +270,80 @@ print(religion_all)
 ```{r, echo=FALSE}
 print(race_posneg)
 ```
+
 ##Gender
 ```{r, echo=FALSE}
 print(gender_posneg)
 ```
+
 ##Religion
 ```{r, echo=FALSE}
 print(religion_posneg)
+```
+
+
+
+```{r, include=FALSE}
+#playing with TIME/Duration Visuaization
+#source: https://stackoverflow.com/questions/17658274/annual-monthly-or-daily-mean-for-irregular-time-series
+#more: https://stackoverflow.com/questions/3777174/plotting-two-variables-as-lines-using-ggplot2-on-the-same-graph
+
+
+race_month$created <- as.Date(race_month$created, "%m/%d/%y")
+
+race_month$text <- as.character(race_month$text)
+
+library(tidytext)
+data("stop_words")
+clean_racedata <- race_month %>%
+  unnest_tokens(word, text)
+
+data("stop_words")
+nstopsracetime <- clean_racedata %>%
+  anti_join(stop_words)
+
+sent_racetime <- clean_racedata %>%
+  inner_join(bing) %>%
+  ungroup()
+
+
+sent_racetime$positive[sent_racetime$sentiment == "positive"] = 1
+sent_racetime$positive[sent_racetime$sentiment == "negative"] = 0
+sent_racetime$positive <- factor(sent_racetime$positive, levels = c(0,1))
+
+sent_racetime$negative[sent_racetime$sentiment == "negative"] = 1
+sent_racetime$negative[sent_racetime$sentiment == "positive"] = 0
+sent_racetime$negative <- factor(sent_racetime$negative, levels = c(0,1))
+
+
+sent_racetime$created <- as.Date(sent_racetime$created, "%m/%d/%y")
+
+dailymeans <- aggregate(cbind("positive.mean" = positive,
+                "negative.mean" = negative) ~ created,
+          data = sent_racetime,
+          FUN = mean)
+
+library(reshape2)
+dailymeans_long <- melt(dailymeans, id = "created")
+
+dailymeansplot <- ggplot(dailymeans_long, aes(created, value, color = variable)) + 
+  geom_line() +
+  theme_minimal() + 
+  labs(title = "Daily Average of Positive & Negative Words \n for Tweets about Race", 
+       x = "Date", y = "Average # of Words") + 
+  guides(color=guide_legend("Sentiment")) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
+        axis.title = element_text(family = "Times", size = 13), 
+        legend.text = element_text(family = "Times", size = 11), 
+        legend.title = element_text(family = "Times", size = 12), 
+        axis.text.x = element_text(family = "Times")) +
+  scale_color_manual(values = c("Grey70", "Black"), labels = c("Positive", "Negative"))
+
+```
+
+
+#Sentiment of Race Tweets Over Time
+``` {r, echo = FALSE}
+print(dailymeansplot)
+
 ```
