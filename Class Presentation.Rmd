@@ -449,18 +449,19 @@ netdf <- rbind(dailysums_gen, dailysums_race, dailysums_rel)
 
 
 #plot net
-netSentplot <- ggplot(netdf, aes(created, netPositve, color = Issue)) + 
-  geom_smooth() +
+netSentplot <- ggplot(netdf, aes(created, netPositve, color = Issue, linetype = Issue)) + 
+  geom_smooth(span = 0.75, se = FALSE, size = .5) +
   theme_minimal() + 
   labs(title = "Net Daily Positivity Score for Tweets by Issue", 
        x = "Date", y = "Net Positivity") + 
-  guides(color=guide_legend("Sentiment")) + 
   theme(plot.title = element_text(hjust = 0.5, size = 18, family = "Times"), 
         axis.title = element_text(family = "Times", size = 13), 
         legend.text = element_text(family = "Times", size = 11), 
         legend.title = element_text(family = "Times", size = 12), 
-        axis.text.x = element_text(family = "Times"))
-
+        axis.text.x = element_text(family = "Times")) + 
+  scale_color_manual(values = c("black", "black", "black")) + 
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) + 
+  scale_x_date(date_breaks = "5 days", date_minor_breaks = "1 day", date_labels = "%b-%d")
 ```
 
 
@@ -488,6 +489,6 @@ print(dailysumsplot_rel)
 #Net Positivity
 
 ``` {r, echo = FALSE}
-print(netSentplot)
+netSentplot
 
 ```
