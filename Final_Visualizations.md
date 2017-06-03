@@ -39,19 +39,9 @@ Religion
 
 ![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
-Sentiment of Race Tweets Over Time
-==================================
-
-![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-8-1.png)![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-8-2.png)![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-8-3.png)
-
-Using Sums instead of Means
-===========================
-
-![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-9-1.png)![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-9-2.png)![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-9-3.png)
-
 Net Positivity
 ==============
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](Final_Visualizations_files/figure-markdown_github/unnamed-chunk-8-1.png)
